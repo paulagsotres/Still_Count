@@ -65,4 +65,5 @@ Videos that can get processed preferably should not have big ambient light chang
 
 **TIP!** Plot the binary size analysis in one video to visualize possible periods of freezing and THEN, choose your Immobility Event threshold. Save your working configurations to not loose them!
 
-
+## Licence
+https://doi.org/10.5281/zenodo.17171323
