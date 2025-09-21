@@ -24,7 +24,7 @@ In the command prompt or terminal, if you have Git installed, run:
 
 ```bash
 git clone https://github.com/paulagsotres/Still_Count.git
-
+---
 ### 3️⃣ Go to the project folder
 
 In the command prompt / terminal, type:
