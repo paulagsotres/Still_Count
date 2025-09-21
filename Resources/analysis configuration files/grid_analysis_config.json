@@ -1,0 +1,13 @@
+{
+    "video_threshold": 60,
+    "immobility_threshold": 120,
+    "frame_interval_bg_sub": 4,
+    "window_size_immobility": 8,
+    "bins": 12,
+    "time_adjustment": 0,
+    "roi_x1": 71,
+    "roi_y1": 61,
+    "roi_x2": 524,
+    "roi_y2": 385,
+    "last_video_folder": "C:/Users/paula/Desktop/Still Count - BORIS/Test videos"
+}
