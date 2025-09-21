@@ -1319,12 +1319,15 @@ class immobilityAnalyzerGUI:
                 )
                 continue
 
-            output_folder_marked = Path(video_path).stem + "_MARKED"
-            os.makedirs(output_folder_marked, exist_ok=True)  # create folder if it doesn't exist
+            input_folder = Path(video_path).parent
+
+            # Create a "Marked videos" folder inside that folder
+            output_folder_marked = input_folder / "Marked videos"
+            os.makedirs(output_folder_marked, exist_ok=True)
             
-            # Build full path for the output video inside the new folder
+            # Build the output video path
             output_video_name = Path(video_path).stem + "_MARKED.avi"
-            output_file_path = os.path.join(output_folder_marked, output_video_name)
+            output_file_path = output_folder_marked / output_video_name
 
     
             # Define a local callback that prints every 100 frames
