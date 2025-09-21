@@ -624,21 +624,46 @@ class immobilityAnalyzerGUI:
 
 
 
-    def _update_roi_rectangle_from_vars(self):
-        """Draw/update ROI rectangle on preview canvas from roi_x1/y1/x2/y2 variables"""
+    def update_roi_vars_from_canvas(self, x1_canvas, y1_canvas, x2_canvas, y2_canvas):
         if self.preview_frame is None:
             return
     
-        x1, y1 = self.roi_x1.get(), self.roi_y1.get()
-        x2, y2 = self.roi_x2.get(), self.roi_y2.get()
+        original_h, original_w, _ = self.preview_frame.shape
+        canvas_w = self.preview_canvas.winfo_width()
+        canvas_h = self.preview_canvas.winfo_height()
     
-        if self.roi_rect_id:
-            self.preview_canvas.coords(self.roi_rect_id, x1, y1, x2, y2)
-        else:
-            self.roi_rect_id = self.preview_canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
+        if canvas_w == 0 or canvas_h == 0:
+            return
     
-        # Update ROI label
-        self.roi_display_label.config(text=f"{x1},{y1},{abs(x2-x1)},{abs(y2-y1)}")
+        # Compute scale for width and height (fit inside canvas while keeping aspect ratio)
+        scale_w = canvas_w / original_w
+        scale_h = canvas_h / original_h
+        scale = min(scale_w, scale_h)
+    
+        # Compute displayed image size and offsets (centering)
+        display_w = int(original_w * scale)
+        display_h = int(original_h * scale)
+        offset_x = (canvas_w - display_w) / 2
+        offset_y = (canvas_h - display_h) / 2
+    
+        # Convert canvas coordinates → image coordinates
+        def canvas_to_image(c_x, c_y):
+            img_x = (c_x - offset_x) / scale
+            img_y = (c_y - offset_y) / scale
+            # Clamp to image boundaries
+            img_x = max(0, min(original_w, img_x))
+            img_y = max(0, min(original_h, img_y))
+            return int(img_x), int(img_y)
+    
+        x1_img, y1_img = canvas_to_image(x1_canvas, y1_canvas)
+        x2_img, y2_img = canvas_to_image(x2_canvas, y2_canvas)
+    
+        # Set ROI vars
+        self.roi_x1.set(min(x1_img, x2_img))
+        self.roi_y1.set(min(y1_img, y2_img))
+        self.roi_x2.set(max(x1_img, x2_img))
+        self.roi_y2.set(max(y1_img, y2_img))
+
     
     def select_folder(self):
         folder_selected = filedialog.askdirectory()
@@ -843,7 +868,6 @@ class immobilityAnalyzerGUI:
             return
     
         display_frame = self.preview_frame.copy()
-    
         x_min_final, y_min_final, x_max_final, y_max_final = self.get_current_roi_coords()
     
         if x_max_final > x_min_final and y_max_final > y_min_final:
@@ -854,34 +878,49 @@ class immobilityAnalyzerGUI:
             if roi_gray.shape[0] > 0 and roi_gray.shape[1] > 0:
                 _, binary_roi = cv2.threshold(roi_gray, self.video_threshold.get(), 255, cv2.THRESH_BINARY)
                 binary_roi = cv2.cvtColor(binary_roi, cv2.COLOR_GRAY2BGR)
-    
                 display_frame[y_min_final:y_max_final, x_min_final:x_max_final] = binary_roi
             else:
                 self.roi_display_label.config(text="Invalid ROI (Zero Area)")
-                cv2.rectangle(display_frame, (x_min_final, y_min_final), (x_max_final, y_max_final), (0, 0, 255), 2)
     
-            cv2.rectangle(display_frame, (x_min_final, y_min_final), (x_max_final, y_max_final), (0, 255, 0), 2)
+        # Compute scale and offsets for consistent display
+        canvas_w = self.preview_canvas.winfo_width()
+        canvas_h = self.preview_canvas.winfo_height()
+        if canvas_w == 0 or canvas_h == 0:
+            canvas_w, canvas_h = 480, 320
     
-            roi_width = abs(x_max_final - x_min_final)
-            roi_height = abs(y_max_final - y_min_final)
-            self.roi_display_label.config(text=f"{x_min_final},{y_min_final},{roi_width},{roi_height}")
-        else:
-            self.roi_display_label.config(text="Invalid ROI (Zero Area)")
-            cv2.rectangle(display_frame, (x_min_final, y_min_final), (x_max_final, y_max_final), (0, 0, 255), 2)
+        original_h, original_w, _ = display_frame.shape
+        scale = min(canvas_w / original_w, canvas_h / original_h)
+        display_w = int(original_w * scale)
+        display_h = int(original_h * scale)
+        offset_x = (canvas_w - display_w) // 2
+        offset_y = (canvas_h - display_h) // 2
     
-        img = cv2.cvtColor(display_frame, cv2.COLOR_BGR2RGB)
+        # Resize frame for display
+        display_frame_resized = cv2.resize(display_frame, (display_w, display_h), interpolation=cv2.INTER_AREA)
+    
+        # Draw rectangle on resized image using scaled coordinates
+        x1_rect = int(x_min_final * scale)
+        y1_rect = int(y_min_final * scale)
+        x2_rect = int(x_max_final * scale)
+        y2_rect = int(y_max_final * scale)
+    
+        cv2.rectangle(display_frame_resized, (x1_rect, y1_rect), (x2_rect, y2_rect), (0, 255, 0), 2)
+    
+        # Convert to PIL image and pad to canvas size
+        img = cv2.cvtColor(display_frame_resized, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img)
+        final_img = Image.new("RGB", (canvas_w, canvas_h), (50, 50, 50))  # background fill
+        final_img.paste(img, (offset_x, offset_y))
     
-        canvas_width = self.preview_canvas.winfo_width()
-        canvas_height = self.preview_canvas.winfo_height()
-        if canvas_width == 0 or canvas_height == 0:
-            canvas_width, canvas_height = 480, 320
-    
-        img.thumbnail((canvas_width, canvas_height), Image.LANCZOS)
-    
-        self.photo = ImageTk.PhotoImage(image=img)
+        self.photo = ImageTk.PhotoImage(image=final_img)
         self.preview_canvas.delete("all")
         self.preview_canvas.create_image(0, 0, image=self.photo, anchor="nw")
+    
+        # Update ROI label
+        roi_width = x_max_final - x_min_final
+        roi_height = y_max_final - y_min_final
+        self.roi_display_label.config(text=f"{x_min_final},{y_min_final},{roi_width},{roi_height}")
+
 
 
     def on_button_press(self, event):
