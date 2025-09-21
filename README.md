@@ -41,21 +41,25 @@ cd "Still_Count"
 
 ---
 
-4️⃣ (Optional but recommended) Create a virtual environment
+### 4️⃣ (Optional but recommended) Create a new environment in using Conda
 
 A virtual environment keeps the project dependencies separate from other Python projects.
-
-python -m venv venv
-
+```bash
+conda create -n still_count
+```
 Activate it:
-
-- Windows:
-venv\Scripts\activate
-
-- Mac / Linux:
-source venv/bin/activate
-
-You should now see (venv) in your terminal – this means the environment is active.
+```bash
+conda activate still_count
+```
+You should now see (still_count) in your conda environments – this means the environment is active.
 
 ---
+---
+
+### 5️⃣ Install dependencies
+
+With the environment active, run:
+``` bash
+pip install -r requirements.txt
+```
 
