@@ -10,9 +10,8 @@ Analyze rodent immobility from videos with a GUI-based tool compatible with a va
 
 Follow these steps to set up the Still Count immobility analysis tool:
 
----
 
-### 1️⃣ Open a command prompt / terminal
+### 1️⃣ Open a command prompt / terminal in the folder you want to store Still Count
 
 - **Windows:** Press `Win + R`, type `cmd`, and hit Enter.  
 - **Mac:** Open **Terminal** from Applications → Utilities.  
@@ -26,11 +25,10 @@ In the command prompt or terminal, if you have Git installed, run:
 git clone https://github.com/paulagsotres/Still_Count.git
 ```
 
----
 
 ### 3️⃣ (Optional but recommended) Create a new environment in using Conda
 
-A virtual environment keeps the project dependencies separate from other Python projects.
+A virtual environment keeps the project dependencies separate from other Python projects. In your terminal type:
 ```bash
 conda create -n still_count
 ```
@@ -41,12 +39,27 @@ conda activate still_count
 You should now see (still_count) in your conda environments – this means the environment is active.
 
 
----
 
 ### 4️⃣ Install dependencies
 
 With the environment active, open the terminal and run:
 ``` bash
+cd folder\Still_Count
 pip install -r requirements.txt
 ```
+
+### 5️⃣ Open GUI
+
+Run the GUI:
+``` bash
+python run_gui.py
+```
+
+Next time you want to open GUI the steps are directly:
+``` bash
+conda activate still_count
+cd folder\Still_Count
+python run_gui.py
+```
+
 
