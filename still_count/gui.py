@@ -1318,9 +1318,14 @@ class immobilityAnalyzerGUI:
                     f"No immobility events detected for {mouse}. Skipping this video."
                 )
                 continue
-    
+
+            output_folder_marked = Path(video_path).stem + "_MARKED"
+            os.makedirs(output_folder_marked, exist_ok=True)  # create folder if it doesn't exist
+            
+            # Build full path for the output video inside the new folder
             output_video_name = Path(video_path).stem + "_MARKED.avi"
-            output_file_path = os.path.join(output_folder, output_video_name)
+            output_file_path = os.path.join(output_folder_marked, output_video_name)
+
     
             # Define a local callback that prints every 100 frames
             def local_frame_progress_callback(current_frame, total_frames):
