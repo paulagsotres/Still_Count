@@ -53,3 +53,16 @@ pip install -r requirements.txt
 Run the GUI by clicking "launch_stillcount.bat" file. This file can be used to open the GUI directly from now on. 
 
 ![GUI preview](https://github.com/paulagsotres/Resources/blob/main/screenshot1.png?raw=true)
+
+----
+## How to use
+
+Watch the tutorial video here:  
+
+[![Still Count Tutorial](https://img.youtube.com/vi/mXGWnG6s_rs/0.jpg)](https://youtu.be/mXGWnG6s_rs)
+
+Videos that can get processed preferably should not have big ambient light changes (for example if the light gets stronger or dimmer throughout the video). The parameter of analysis should be choosen manually by the users depending of the experimental set-up and the protocol. There are 4 presets included that can give you an idea of where to start. 
+
+TIP! Plot the binary size analysis in one video to visualize possible periods of freezing and THEN, choose your Immobility Event threshold. Save your working configurations to not loose them!
+
+
