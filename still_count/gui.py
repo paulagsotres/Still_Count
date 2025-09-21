@@ -173,7 +173,7 @@ class immobilityAnalyzerGUI:
             import requests
             from io import BytesIO
         
-            logo_url = "https://github.com/paulagsotres/Resources/raw/main/Asset%202@300x.png"
+            logo_url = "https://github.com/paulagsotres/Still_Count/blob/master/Still_count_logo.png"
             response = requests.get(logo_url)
             response.raise_for_status()
         
