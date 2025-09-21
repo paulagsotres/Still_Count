@@ -28,20 +28,7 @@ git clone https://github.com/paulagsotres/Still_Count.git
 
 ---
 
-### 3️⃣ Go to the project folder
-
-In the command prompt or terminal, type:
-
-```bash
-cd "Still_Count"
-````
-
-- cd means change directory → it moves the terminal into the folder where the project is.
-- You need to be inside the project folder to run the code or install packages.
-
----
-
-### 4️⃣ (Optional but recommended) Create a new environment in using Conda
+### 3️⃣ (Optional but recommended) Create a new environment in using Conda
 
 A virtual environment keeps the project dependencies separate from other Python projects.
 ```bash
@@ -53,12 +40,12 @@ conda activate still_count
 ```
 You should now see (still_count) in your conda environments – this means the environment is active.
 
----
+
 ---
 
-### 5️⃣ Install dependencies
+### 4️⃣ Install dependencies
 
-With the environment active, run:
+With the environment active, open the terminal and run:
 ``` bash
 pip install -r requirements.txt
 ```
