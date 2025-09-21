@@ -1482,18 +1482,18 @@ class immobilityAnalyzerGUI:
         total_csvs = len(csv_files_found)
         errors_found = False
     
-        # --- Process CSVs as before ---
+        # --- Process CSVs ---
         for csv_path in csv_files_found:
             processed_csv_count += 1
             mouse_name = csv_path.stem.replace('immobility_', '')
             self.status_label.config(text=f"Status: Parsing CSV ({processed_csv_count}/{total_csvs}) for {mouse_name}...")
-            self.progress_bar.config(value=(processed_csv_count / total_csvs) * 100)
+            self.progress_bar.config(value=(processed_csv_count / total_csvs) * 50)  # use 0-50% for CSV parsing
             self.master.update_idletasks()
     
             try:
                 df_csv = pd.read_csv(csv_path)
-                
                 frame_events = []
+    
                 if 'Image index' in df_csv.columns and 'Behavior type' in df_csv.columns:
                     immobility_events_df = df_csv[df_csv['Behavior'] == 'immobility'].copy()
                     
@@ -1506,7 +1506,7 @@ class immobilityAnalyzerGUI:
                     immobility_events_df_sorted = immobility_events_df.sort_values(by=['Image index', 'Behavior type'], ascending=[True, True])
                     active_bouts = {}
                     
-                    for index, row in immobility_events_df_sorted.iterrows():
+                    for _, row in immobility_events_df_sorted.iterrows():
                         img_idx = row['Image index']
                         event_type = row['Behavior type']
                         
@@ -1523,7 +1523,7 @@ class immobilityAnalyzerGUI:
                                     temp_frame_events_set.add(frame_num)
                                 del active_bouts[matching_start]
                             else:
-                                print(f"Warning: STOP event at {img_idx} without a matching START in {csv_path}. Skipping this event.")
+                                print(f"Warning: STOP event at {img_idx} without matching START in {csv_path}. Skipping.")
                                 errors_found = True
                     
                     frame_events = sorted(list(temp_frame_events_set))
@@ -1546,11 +1546,11 @@ class immobilityAnalyzerGUI:
                     errors_found = True
     
             except Exception as e:
-                print(f"Error reading or parsing {csv_path}: {e}")
+                print(f"Error reading/parsing {csv_path}: {e}")
                 errors_found = True
     
-        self.progress_bar.grid_remove()
-        self.progress_bar.config(value=0)
+        # CSV parsing complete
+        self.progress_bar.config(value=50)
     
         if self.analysis_results_cache:
             messagebox.showinfo("CSV Load Complete", "immobility CSVs loaded successfully. You can now 'Export Marked Videos'.")
@@ -1565,7 +1565,7 @@ class immobilityAnalyzerGUI:
         if errors_found:
             messagebox.showwarning("Load with Errors", "Some CSV files could not be processed correctly. Check console for details.")
     
-        # --- NEW: Export all loaded CSV results to Excel ---
+        # --- Export all loaded CSV results to Excel ---
         try:
             all_results_list = []
             for mouse_name, result_dict in self.analysis_results_cache.items():
@@ -1585,14 +1585,15 @@ class immobilityAnalyzerGUI:
                 categories = classifications.get("categories", [])
                 file_assignments = classifications.get("file_assignments", {})
                 all_results_df['Category'] = 'Unassigned'
+    
                 for mouse_name in all_results_df.index:
                     found_video_path = None
                     if mouse_name in self.video_files:
                         found_video_path = self.video_files[mouse_name]
                     else:
-                        for path in self.video_files:
-                            if Path(path).stem.split('-')[0] == mouse_name:
-                                found_video_path = path
+                        for _, video_path in self.video_files.items():
+                            if Path(video_path).stem.split('-')[0] == mouse_name:
+                                found_video_path = video_path
                                 break
                     if found_video_path and found_video_path in file_assignments:
                         all_results_df.loc[mouse_name, 'Category'] = file_assignments[found_video_path]
@@ -1600,6 +1601,9 @@ class immobilityAnalyzerGUI:
                 categories = []
     
             output_excel_path = os.path.join(folder_selected, "ALL_SUBJECTS_RESULTS_COMBINED.xlsx")
+            total_steps = 1 + len(categories)  # overall summary + each category
+            current_step = 0
+    
             with pd.ExcelWriter(output_excel_path, engine='xlsxwriter') as writer:
                 # Overall summary
                 if 'Category' in all_results_df.columns:
@@ -1607,14 +1611,28 @@ class immobilityAnalyzerGUI:
                     all_results_df = all_results_df[cols]
                 all_results_df.to_excel(writer, sheet_name='Overall Summary', index=True)
     
-                # Export category sheets if classifications exist
-                if categories:
-                    for category in sorted(categories + ["Unassigned"]):
-                        category_df = all_results_df[all_results_df['Category'] == category].copy()
-                        if not category_df.empty:
-                            category_df_to_export = category_df.drop(columns=['Category'])
-                            category_df_to_export.to_excel(writer, sheet_name=category, index=True)
+                # Update progress bar
+                current_step += 1
+                self.progress_bar.config(value=50 + (current_step / total_steps) * 50)
+                self.master.update_idletasks()
     
+                # Export category sheets
+                for category in sorted(categories + ["Unassigned"]):
+                    category_df = all_results_df[all_results_df['Category'] == category].copy()
+                    if not category_df.empty:
+                        category_df_to_export = category_df.drop(columns=['Category'])
+                        category_df_to_export.to_excel(writer, sheet_name=category, index=True)
+                    current_step += 1
+                    self.progress_bar.config(value=50 + (current_step / total_steps) * 50)
+                    self.master.update_idletasks()
+    
+            self.progress_bar.grid_remove()
+            self.progress_bar["value"] = 0
+            self.status_label.config(text="Status: Export Complete!")
             messagebox.showinfo("Export Complete", f"Results exported to {output_excel_path}")
+    
         except Exception as e:
+            self.progress_bar.grid_remove()
+            self.progress_bar["value"] = 0
+            self.status_label.config(text="Status: Error during export.")
             messagebox.showerror("Export Error", f"Failed to export results: {e}")
