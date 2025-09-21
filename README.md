@@ -44,7 +44,7 @@ You should now see (still_count) in your conda environments – this means the e
 
 With the environment active, open the terminal and run:
 ``` bash
-cd folder\Still_Count
+cd folder\Still_Count (path to your Still Count folder)
 pip install -r requirements.txt
 ```
 
@@ -58,7 +58,7 @@ python run_gui.py
 Next time you want to open GUI the steps are directly:
 ``` bash
 conda activate still_count
-cd folder\Still_Count
+cd folder\Still_Count (path to your Still Count folder)
 python run_gui.py
 ```
 
