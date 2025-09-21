@@ -51,4 +51,4 @@ pip install -r requirements.txt
 ### 5️⃣ Open GUI
 
 Run the GUI by clicking "launch_stillcount.bat" file. This file can be used to open the GUI directly from now on. 
-
+![GUI preview]((https://github.com/paulagsotres/Resources/blob/main/screenshot1.png?raw=true)
