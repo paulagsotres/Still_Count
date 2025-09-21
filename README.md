@@ -12,7 +12,23 @@ Follow these steps to set up the Still Count immobility analysis tool:
 
 ---
 
-### 1️⃣ Clone the repository
+### 1️⃣ Open a command prompt / terminal
+
+- **Windows:** Press `Win + R`, type `cmd`, and hit Enter.  
+- **Mac:** Open **Terminal** from Applications → Utilities.  
+- **Linux:** Open your favorite terminal.
+
+### 2️⃣ Clone the repository (or download the ZIP directly from Github)
+
+In the command prompt or terminal, if you have Git installed, run:
 
 ```bash
 git clone https://github.com/paulagsotres/Still_Count.git
+
+### 3️⃣ Go to the project folder
+
+In the command prompt / terminal, type:
+
+```bash
+cd "\folder\Still_count"
+
