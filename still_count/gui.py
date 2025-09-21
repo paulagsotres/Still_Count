@@ -781,7 +781,7 @@ class immobilityAnalyzerGUI:
 
     def load_random_frame_on_startup(self):
         if self.current_folder_path:
-            self.video_files = take_all_files(self.current_folder_path)
+            self.video_files, _ = take_all_files(self.current_folder_path)
             if self.video_files:
                 self.file_listbox_files = {}
                 for mouse_name_key, filepath in sorted(self.video_files.items()):
@@ -1464,7 +1464,7 @@ class immobilityAnalyzerGUI:
     
         self.analysis_results_cache = {}
         csv_files_found = list(Path(folder_selected).glob("immobility_*.csv"))
-        self.video_files = take_all_files(folder_selected)
+        self.video_files, self.framerate = take_all_files(folder_selected)
     
         if not csv_files_found:
             messagebox.showwarning("No CSVs Found", f"No 'immobility_*.csv' files found in {folder_selected}.")
