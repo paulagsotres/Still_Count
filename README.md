@@ -67,3 +67,5 @@ Videos that can get processed preferably should not have big ambient light chang
 
 ## Licence
 https://doi.org/10.5281/zenodo.17171323
+
+**Any bugs or errors, feel free to email me at: paulagomezsotres@gmail.com**
