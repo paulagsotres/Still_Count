@@ -8,7 +8,7 @@ Analyze rodent immobility from videos with a GUI-based tool compatible with a va
   
 ## Installation
 
-Follow these steps to set up the Still Count immobility analysis tool:
+This software does not require GPU to run. Follow these steps to set up the Still Count immobility analysis tool:
 
 
 ### 1️⃣ Open a command prompt / terminal in the folder you want to store Still Count
@@ -63,6 +63,6 @@ Watch the tutorial video here:
 
 Videos that can get processed preferably should not have big ambient light changes (for example if the light gets stronger or dimmer throughout the video). The parameter of analysis should be choosen manually by the users depending of the experimental set-up and the protocol. There are 4 presets included that can give you an idea of where to start. 
 
-TIP! Plot the binary size analysis in one video to visualize possible periods of freezing and THEN, choose your Immobility Event threshold. Save your working configurations to not loose them!
+**TIP!** Plot the binary size analysis in one video to visualize possible periods of freezing and THEN, choose your Immobility Event threshold. Save your working configurations to not loose them!
 
 
