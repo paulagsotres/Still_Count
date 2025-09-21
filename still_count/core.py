@@ -15,30 +15,46 @@ import os
 
 # --- Core immobility Detection Functions ---
 
+import cv2
+from pathlib import Path
+
 def take_all_files(dir_path):
     """
     Returns:
         dictionary_all_files: dict of key -> video path
         fps_of_sample_video: float (FPS of one selected video)
+    Raises:
+        FileNotFoundError: if no video files are found in the folder
     """
     dictionary_all_files = {}
     fps = None
 
-    if not Path(dir_path).exists():
-        return {}, None
+    dir_path = Path(dir_path)
+    if not dir_path.exists():
+        raise FileNotFoundError(f"Directory does not exist: {dir_path}")
     
     video_extensions = ['.avi', '.mp4', '.mkv', '.mov', '.wmv']
-    
-    for ext in video_extensions:
-        for file_path in Path(dir_path).glob(f"*{ext}"):
-            key_name = file_path.stem.split('-')[0]
-            dictionary_all_files[key_name] = str(file_path)
 
-    cap = cv2.VideoCapture(str(file_path))
+    # Collect all video files
+    video_files = []
+    for ext in video_extensions:
+        video_files.extend(dir_path.glob(f"*{ext}"))
+
+    if not video_files:
+        raise FileNotFoundError(f"No video files found in directory: {dir_path}")
+
+    # Populate dictionary
+    for file_path in video_files:
+        key_name = file_path.stem.split('-')[0]
+        dictionary_all_files[key_name] = str(file_path)
+
+    # Get FPS from the first video file
+    cap = cv2.VideoCapture(str(video_files[0]))
     fps = cap.get(cv2.CAP_PROP_FPS)
     cap.release()
 
     return dictionary_all_files, fps
+
 
 
 def run_background_subtraction_for_analysis(video_path, roi_x, roi_y, roi_width, roi_height, video_threshold, frame_interval,
