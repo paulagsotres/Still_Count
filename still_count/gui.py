@@ -259,12 +259,12 @@ class immobilityAnalyzerGUI:
         self.immobility_threshold_scale.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
         ttk.Entry(params_frame, textvariable=self.immobility_threshold, width=5).grid(row=1, column=2, padx=5, pady=2)
 
-        ttk.Label(params_frame, text="Frame Interval (BG Sub.):").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(params_frame, text="Frame Interval (for BG Sub.):").grid(row=2, column=0, padx=5, pady=2, sticky="w")
         self.frame_interval_scale = ttk.Scale(params_frame, from_=1, to=20, orient="horizontal", variable=self.frame_interval_bg_sub)
         self.frame_interval_scale.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
         ttk.Entry(params_frame, textvariable=self.frame_interval_bg_sub, width=5).grid(row=2, column=2, padx=5, pady=2)
 
-        ttk.Label(params_frame, text="immobility Window Size (frames):").grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(params_frame, text="Immobility Window to count (frames):").grid(row=3, column=0, padx=5, pady=2, sticky="w")
         ttk.Scale(params_frame, from_=1, to=60, orient="horizontal", variable=self.window_size_immobility).grid(row=3, column=1, padx=5, pady=2, sticky="ew")
         ttk.Entry(params_frame, textvariable=self.window_size_immobility, width=5).grid(row=3, column=2, padx=5, pady=2)
 
