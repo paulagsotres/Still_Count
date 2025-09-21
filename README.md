@@ -50,16 +50,5 @@ pip install -r requirements.txt
 
 ### 5️⃣ Open GUI
 
-Run the GUI:
-``` bash
-python run_gui.py
-```
-
-Next time you want to open GUI the steps are directly:
-``` bash
-conda activate still_count
-cd folder\Still_Count (path to your Still Count folder)
-python run_gui.py
-```
-
+Run the GUI by clicking "launch_stillcount.bat" file. This file can be used to open the GUI directly from now on. 
 
