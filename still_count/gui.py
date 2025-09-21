@@ -1451,21 +1451,21 @@ class immobilityAnalyzerGUI:
         folder_selected = filedialog.askdirectory(title="Select folder containing immobility_XXXX.csv files and original videos")
         if not folder_selected:
             return
-
+    
         self.current_folder_path = folder_selected
         self.folder_path_var.set(folder_selected)
         self.output_dir_var.set(folder_selected)
-
+    
         self.status_label.config(text="Status: Loading immobility CSVs...")
         self.progress_bar.grid()
         self.progress_bar.config(value=0, maximum=100)
         self.master.after_idle(lambda: self.progress_bar.config(value=0))
         self.master.update_idletasks()
-
+    
         self.analysis_results_cache = {}
         csv_files_found = list(Path(folder_selected).glob("immobility_*.csv"))
         self.video_files = take_all_files(folder_selected)
-
+    
         if not csv_files_found:
             messagebox.showwarning("No CSVs Found", f"No 'immobility_*.csv' files found in {folder_selected}.")
             self.progress_bar.grid_remove()
@@ -1477,20 +1477,19 @@ class immobilityAnalyzerGUI:
             self.progress_bar.grid_remove()
             self.status_label.config(text="Status: Ready")
             return
-
-
+    
         processed_csv_count = 0
         total_csvs = len(csv_files_found)
         errors_found = False
-
-
+    
+        # --- Process CSVs as before ---
         for csv_path in csv_files_found:
             processed_csv_count += 1
             mouse_name = csv_path.stem.replace('immobility_', '')
             self.status_label.config(text=f"Status: Parsing CSV ({processed_csv_count}/{total_csvs}) for {mouse_name}...")
             self.progress_bar.config(value=(processed_csv_count / total_csvs) * 100)
             self.master.update_idletasks()
-
+    
             try:
                 df_csv = pd.read_csv(csv_path)
                 
@@ -1503,11 +1502,8 @@ class immobilityAnalyzerGUI:
                         continue
                     
                     immobility_events_df['Image index'] = immobility_events_df['Image index'].astype(int)
-
                     temp_frame_events_set = set()
-                    
                     immobility_events_df_sorted = immobility_events_df.sort_values(by=['Image index', 'Behavior type'], ascending=[True, True])
-                    
                     active_bouts = {}
                     
                     for index, row in immobility_events_df_sorted.iterrows():
@@ -1522,7 +1518,6 @@ class immobilityAnalyzerGUI:
                                 if active_bouts[start_i]:
                                     matching_start = start_i
                                     break
-                            
                             if matching_start is not None:
                                 for frame_num in range(matching_start, img_idx + 1):
                                     temp_frame_events_set.add(frame_num)
@@ -1532,13 +1527,12 @@ class immobilityAnalyzerGUI:
                                 errors_found = True
                     
                     frame_events = sorted(list(temp_frame_events_set))
-
+    
                     if frame_events:
-                        max_frame = max(frame_events) if frame_events else 0
+                        max_frame = max(frame_events)
                         persistent_immobility_arr = np.zeros(max_frame + 1, dtype=int)
                         for f_idx in frame_events:
-                            if f_idx <= max_frame:
-                                persistent_immobility_arr[f_idx] = 1
+                            persistent_immobility_arr[f_idx] = 1
                         
                         self.analysis_results_cache[mouse_name] = {
                             'frame_events': frame_events,
@@ -1550,14 +1544,14 @@ class immobilityAnalyzerGUI:
                 else:
                     print(f"Warning: Missing 'Image index' or 'Behavior type' in {csv_path}. Skipping.")
                     errors_found = True
-
+    
             except Exception as e:
                 print(f"Error reading or parsing {csv_path}: {e}")
                 errors_found = True
-
+    
         self.progress_bar.grid_remove()
         self.progress_bar.config(value=0)
-        
+    
         if self.analysis_results_cache:
             messagebox.showinfo("CSV Load Complete", "immobility CSVs loaded successfully. You can now 'Export Marked Videos'.")
             self.export_video_button.config(state=tk.NORMAL)
@@ -1566,7 +1560,61 @@ class immobilityAnalyzerGUI:
             messagebox.showwarning("No Data Loaded", "No valid immobility data could be loaded from CSVs.")
             self.export_video_button.config(state=tk.DISABLED)
             self.export_results_by_categories_button.config(state=tk.DISABLED)
-
+    
         self.status_label.config(text="Status: Ready (CSVs loaded)")
         if errors_found:
             messagebox.showwarning("Load with Errors", "Some CSV files could not be processed correctly. Check console for details.")
+    
+        # --- NEW: Export all loaded CSV results to Excel ---
+        try:
+            all_results_list = []
+            for mouse_name, result_dict in self.analysis_results_cache.items():
+                all_results_list.append({
+                    'Mouse': mouse_name,
+                    'Seconds_Immobility': result_dict.get('seconds_immobility', np.nan),
+                    'Frames_Immobility': len(result_dict.get('frame_events', []))
+                })
+            
+            all_results_df = pd.DataFrame(all_results_list).set_index('Mouse')
+    
+            # Check for classifications.json
+            classification_file_path = os.path.join(folder_selected, "classifications.json")
+            if os.path.exists(classification_file_path):
+                with open(classification_file_path, 'r') as f:
+                    classifications = json.load(f)
+                categories = classifications.get("categories", [])
+                file_assignments = classifications.get("file_assignments", {})
+                all_results_df['Category'] = 'Unassigned'
+                for mouse_name in all_results_df.index:
+                    found_video_path = None
+                    if mouse_name in self.video_files:
+                        found_video_path = self.video_files[mouse_name]
+                    else:
+                        for path in self.video_files:
+                            if Path(path).stem.split('-')[0] == mouse_name:
+                                found_video_path = path
+                                break
+                    if found_video_path and found_video_path in file_assignments:
+                        all_results_df.loc[mouse_name, 'Category'] = file_assignments[found_video_path]
+            else:
+                categories = []
+    
+            output_excel_path = os.path.join(folder_selected, "ALL_SUBJECTS_RESULTS_COMBINED.xlsx")
+            with pd.ExcelWriter(output_excel_path, engine='xlsxwriter') as writer:
+                # Overall summary
+                if 'Category' in all_results_df.columns:
+                    cols = ['Category'] + [col for col in all_results_df.columns if col != 'Category']
+                    all_results_df = all_results_df[cols]
+                all_results_df.to_excel(writer, sheet_name='Overall Summary', index=True)
+    
+                # Export category sheets if classifications exist
+                if categories:
+                    for category in sorted(categories + ["Unassigned"]):
+                        category_df = all_results_df[all_results_df['Category'] == category].copy()
+                        if not category_df.empty:
+                            category_df_to_export = category_df.drop(columns=['Category'])
+                            category_df_to_export.to_excel(writer, sheet_name=category, index=True)
+    
+            messagebox.showinfo("Export Complete", f"Results exported to {output_excel_path}")
+        except Exception as e:
+            messagebox.showerror("Export Error", f"Failed to export results: {e}")
