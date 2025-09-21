@@ -219,7 +219,7 @@ def create_immobility_mark_video(input_video_path, output_video_path, frame_even
         frame_resized = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
         
         if frame_number in frame_indices_to_plot:
-            cv2.circle(frame_resized, (20, 20), 10, (0, 0, 255), -1)
+            cv2.circle(frame_resized, (20, 20), 5, (0, 0, 255), -1)
     
         out.write(frame_resized)
 
