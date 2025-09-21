@@ -5,3 +5,14 @@ Analyze rodent immobility from videos with a GUI-based tool compatible with a va
 - [Installation](#installation)
 - [How to use](#howto)
 - [License](#license)
+- 
+## Installation
+
+Follow these steps to set up the Still Count immobility analysis tool:
+
+---
+
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/paulagsotres/Still_Count.git
