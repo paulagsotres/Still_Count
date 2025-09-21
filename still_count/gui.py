@@ -1600,7 +1600,7 @@ class immobilityAnalyzerGUI:
             else:
                 categories = []
     
-            output_excel_path = os.path.join(folder_selected, "ALL_SUBJECTS_RESULTS_COMBINED.xlsx")
+            output_excel_path = os.path.join(folder_selected, "All_subject_total_time.xlsx")
             total_steps = 1 + len(categories)  # overall summary + each category
             current_step = 0
     
