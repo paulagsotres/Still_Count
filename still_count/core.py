@@ -15,8 +15,6 @@ import os
 
 # --- Core immobility Detection Functions ---
 
-import cv2
-from pathlib import Path
 
 def take_all_files(dir_path):
     """
